@@ -10,7 +10,7 @@
 #define M_PI 3.14159265358979323846
 using namespace std;
 
-GLfloat cam[] = {0, 0, 70};
+GLfloat cam[] = {0, 20, 70};
 GLfloat camAngle = M_PI / 180 * 270;
 
 typedef struct treenode
@@ -20,8 +20,9 @@ typedef struct treenode
   struct treenode *sibling;
   struct treenode *child;
 } treenode;
-treenode torso_node, head_node, neck_node, flul_node, frul_node, blul_node, brul_node, flll_node, frll_node, blll_node, brll_node;
+treenode torso_node, head_node, neck_node, flul_node, frul_node, blul_node, brul_node, flll_node, frll_node, blll_node, brll_node, flt_node, frt_node, blt_node, brt_node;
 // legs: front/back, right/left, upper/lower, leg
+// toes: front/back, right/left, toe
 
 GLfloat theta[11] = {0};
 
@@ -30,6 +31,7 @@ int torso_height = 5;
 void torso()
 {
   glPushMatrix();
+  //glTranslatef(0, torso_height, -torso_length * 0.5);
   gluCylinder(gluNewQuadric(), torso_height, torso_height, torso_length, 20, 20);
   gluDisk(gluNewQuadric(), 0, torso_height, 20, 20);
   glTranslatef(0, 0, torso_length);
@@ -40,16 +42,13 @@ int neck_length = 5;
 void neck()
 {
   glPushMatrix();
-  glTranslatef(0, torso_height / 2 - 1, torso_length);
-  gluCylinder(gluNewQuadric(), 3, 2, 5, 20, 20);
+  gluCylinder(gluNewQuadric(), 2, 2, 5, 20, 20);
   glPopMatrix();
 }
 int head_size = 3.5;
 void head()
 {
   glPushMatrix();
-  glTranslatef(0, 1, neck_length + head_size / 2);
-  glTranslatef(0, torso_height / 2 - 1, torso_length);
   gluSphere(gluNewQuadric(), head_size, 20, 20);
   glPopMatrix();
 }
@@ -58,7 +57,6 @@ int leg_height = 5;
 void flul()
 {
   glPushMatrix();
-  glTranslatef(-(torso_height / 2), -torso_height, torso_length - 2);
   glRotatef(90, 1, 0, 0);
   gluCylinder(gluNewQuadric(), 1, 1, leg_height, 20, 20);
   glPopMatrix();
@@ -66,8 +64,6 @@ void flul()
 void flll()
 {
   glPushMatrix();
-  glTranslatef(0, -leg_height, 0);
-  glTranslatef(-(torso_height / 2), -torso_height, torso_length - 2);
   glRotatef(90, 1, 0, 0);
   gluCylinder(gluNewQuadric(), 1, 1, leg_height, 20, 20);
   glPopMatrix();
@@ -76,7 +72,6 @@ void flll()
 void frul()
 {
   glPushMatrix();
-  glTranslatef(torso_height / 2, -torso_height, torso_length - 2);
   glRotatef(90, 1, 0, 0);
   gluCylinder(gluNewQuadric(), 1, 1, leg_height, 20, 20);
   glPopMatrix();
@@ -84,8 +79,6 @@ void frul()
 void frll()
 {
   glPushMatrix();
-  glTranslatef(0, -leg_height, 0);
-  glTranslatef(torso_height / 2, -torso_height, torso_length - 2);
   glRotatef(90, 1, 0, 0);
   gluCylinder(gluNewQuadric(), 1, 1, leg_height, 20, 20);
   glPopMatrix();
@@ -94,7 +87,6 @@ void frll()
 void blul()
 {
   glPushMatrix();
-  glTranslatef(-torso_height / 2, -torso_height, 2);
   glRotatef(90, 1, 0, 0);
   gluCylinder(gluNewQuadric(), 1, 1, leg_height, 20, 20);
   glPopMatrix();
@@ -102,8 +94,6 @@ void blul()
 void blll()
 {
   glPushMatrix();
-  glTranslatef(0, -leg_height, 0);
-  glTranslatef(-torso_height / 2, -torso_height, 2);
   glRotatef(90, 1, 0, 0);
   gluCylinder(gluNewQuadric(), 1, 1, leg_height, 20, 20);
   glPopMatrix();
@@ -112,7 +102,6 @@ void blll()
 void brul()
 {
   glPushMatrix();
-  glTranslatef(torso_height / 2, -torso_height, 2);
   glRotatef(90, 1, 0, 0);
   gluCylinder(gluNewQuadric(), 1, 1, leg_height, 20, 20);
   glPopMatrix();
@@ -120,15 +109,51 @@ void brul()
 void brll()
 {
   glPushMatrix();
-  glTranslatef(0, -leg_height, 0);
-  glTranslatef(torso_height / 2, -torso_height, 2);
   glRotatef(90, 1, 0, 0);
   gluCylinder(gluNewQuadric(), 1, 1, leg_height, 20, 20);
   glPopMatrix();
 }
 
-void toe()
+int toe_length = 4;
+void flt()
 {
+  glPushMatrix();
+  glTranslatef(0, 0, -1);
+  gluCylinder(gluNewQuadric(), 1, 1, toe_length, 20, 20);
+  gluDisk(gluNewQuadric(), 0, 1, 20, 20);
+  glTranslatef(0, 0, toe_length);
+  gluDisk(gluNewQuadric(), 0, 1, 20, 20);
+  glPopMatrix();
+}
+void frt()
+{
+  glPushMatrix();
+  glTranslatef(0, 0, -1);
+  gluCylinder(gluNewQuadric(), 1, 1, toe_length, 20, 20);
+  gluDisk(gluNewQuadric(), 0, 1, 20, 20);
+  glTranslatef(0, 0, toe_length);
+  gluDisk(gluNewQuadric(), 0, 1, 20, 20);
+  glPopMatrix();
+}
+void blt()
+{
+  glPushMatrix();
+  glTranslatef(0, 0, -1);
+  gluCylinder(gluNewQuadric(), 1, 1, toe_length, 20, 20);
+  gluDisk(gluNewQuadric(), 0, 1, 20, 20);
+  glTranslatef(0, 0, toe_length);
+  gluDisk(gluNewQuadric(), 0, 1, 20, 20);
+  glPopMatrix();
+}
+void brt()
+{
+  glPushMatrix();
+  glTranslatef(0, 0, -1);
+  gluCylinder(gluNewQuadric(), 1, 1, toe_length, 20, 20);
+  gluDisk(gluNewQuadric(), 0, 1, 20, 20);
+  glTranslatef(0, 0, toe_length);
+  gluDisk(gluNewQuadric(), 0, 1, 20, 20);
+  glPopMatrix();
 }
 
 void myinit()
@@ -143,10 +168,10 @@ void myinit()
   gluLookAt(cam[0], cam[1], cam[2], 0, 0, 0, 0, 1, 0);
   // glulookat explanation: https://stackoverflow.com/questions/5717654/glulookat-explanation/5721110
 
-  // INITIALIZE TREE NODES
+  // INITIALIZE TREE NODES AND MOVEMENT ANGLES
   // TORSO:
   glLoadIdentity();
-  //glRotatef(90, 0, 1, 0);
+  //glRotatef(50, 0, 1, 1);
   glGetFloatv(GL_MODELVIEW_MATRIX, torso_node.m);
   torso_node.f = torso;
   torso_node.sibling = NULL;
@@ -154,7 +179,9 @@ void myinit()
 
   // NECK:
   glLoadIdentity();
-  //glRotatef(90, 0, 1, 0);
+  glTranslatef(0, torso_height / 2 - 1, torso_length);
+  glRotatef(30, -1, 0, 0);
+
   glGetFloatv(GL_MODELVIEW_MATRIX, neck_node.m);
   neck_node.f = neck;
   neck_node.sibling = &flul_node;
@@ -162,6 +189,8 @@ void myinit()
 
   // HEAD:
   glLoadIdentity();
+  glTranslatef(0, 0, neck_length + head_size / 2);
+  //glTranslatef(0, torso_height / 2 - 1, torso_length);
   glGetFloatv(GL_MODELVIEW_MATRIX, head_node.m);
   head_node.f = head;
   head_node.sibling = NULL;
@@ -169,6 +198,7 @@ void myinit()
 
   // Front Left Upper Leg:
   glLoadIdentity();
+  glTranslatef(-(torso_height / 2), -torso_height, torso_length - 2);
   glGetFloatv(GL_MODELVIEW_MATRIX, flul_node.m);
   flul_node.f = flul;
   flul_node.sibling = &frul_node;
@@ -176,15 +206,25 @@ void myinit()
 
   // Front Left Lower Leg:
   glLoadIdentity();
+  glTranslatef(0, -leg_height, 0);
   glGetFloatv(GL_MODELVIEW_MATRIX, flll_node.m);
   flll_node.f = flll;
   flll_node.sibling = NULL;
-  flll_node.child = NULL;
+  flll_node.child = &flt_node;
+
+  // Front Left Toe:
+  glLoadIdentity();
+  glTranslatef(0, -leg_height, 0);
+  glGetFloatv(GL_MODELVIEW_MATRIX, flt_node.m);
+  flt_node.f = flt;
+  flt_node.sibling = NULL;
+  flt_node.child = NULL;
 
   // Front Right Upper Leg:
   glLoadIdentity();
   // glTranslatef(13, -8, -2);
   // glRotatef(90, 1, 0, 0);
+  glTranslatef((torso_height / 2), -torso_height, torso_length - 2);
   glGetFloatv(GL_MODELVIEW_MATRIX, frul_node.m);
   frul_node.f = frul;
   frul_node.sibling = &blul_node;
@@ -193,15 +233,25 @@ void myinit()
   // Front Right Lower Leg:
   glLoadIdentity();
   // glTranslatef(0, -8, 0);
+  glTranslatef(0, -leg_height, 0);
   glGetFloatv(GL_MODELVIEW_MATRIX, frll_node.m);
   frll_node.f = frll;
   frll_node.sibling = NULL;
-  frll_node.child = NULL;
+  frll_node.child = &frt_node;
+
+  // Front Right Toe:
+  glLoadIdentity();
+  glTranslatef(0, -leg_height, 0);
+  glGetFloatv(GL_MODELVIEW_MATRIX, frt_node.m);
+  frt_node.f = frt;
+  frt_node.sibling = NULL;
+  frt_node.child = NULL;
 
   // Back Left Upper Leg:
   glLoadIdentity();
   // glTranslatef(3, -4, 2);
   // glRotatef(90, 1, 0, 0);
+  glTranslatef(-(torso_height / 2), -torso_height, 2);
   glGetFloatv(GL_MODELVIEW_MATRIX, blul_node.m);
   blul_node.f = blul;
   blul_node.sibling = &brul_node;
@@ -209,16 +259,26 @@ void myinit()
 
   // Back Left Lower Leg:
   glLoadIdentity();
-  // glTranslatef(0, -8, 0);
+  // glTranslatef(0, -8, 0);  g
+  glTranslatef(0, -leg_height, 0);
   glGetFloatv(GL_MODELVIEW_MATRIX, blll_node.m);
   blll_node.f = blll;
   blll_node.sibling = NULL;
-  blll_node.child = NULL;
+  blll_node.child = &blt_node;
+
+  // Back Left Toe:
+  glLoadIdentity();
+  glTranslatef(0, -leg_height, 0);
+  glGetFloatv(GL_MODELVIEW_MATRIX, blt_node.m);
+  blt_node.f = blt;
+  blt_node.sibling = NULL;
+  blt_node.child = NULL;
 
   // Back Right Upper Leg:
   glLoadIdentity();
   // glTranslatef(3, -4, -2);
   // glRotatef(90, 1, 0, 0);
+  glTranslatef((torso_height / 2), -torso_height, 2);
   glGetFloatv(GL_MODELVIEW_MATRIX, brul_node.m);
   brul_node.f = brul;
   brul_node.sibling = NULL;
@@ -227,10 +287,19 @@ void myinit()
   // Back Right Lower Leg:
   glLoadIdentity();
   // glTranslatef(0, -8, 0);
+  glTranslatef(0, -leg_height, 0);
   glGetFloatv(GL_MODELVIEW_MATRIX, brll_node.m);
   brll_node.f = brll;
   brll_node.sibling = NULL;
-  brll_node.child = NULL;
+  brll_node.child = &brt_node;
+
+  // Back Right Toe:
+  glLoadIdentity();
+  glTranslatef(0, -leg_height, 0);
+  glGetFloatv(GL_MODELVIEW_MATRIX, brt_node.m);
+  brt_node.f = brt;
+  brt_node.sibling = NULL;
+  brt_node.child = NULL;
 }
 
 void idleFunc()
@@ -253,6 +322,40 @@ void traverse(treenode *root)
     traverse(root->sibling);
 }
 
+void drawAxis()
+{
+  glPushMatrix();
+  glBegin(GL_LINE_STRIP);
+  glColor3f(1, 0, 0);
+  for (int x = -100; x <= 100; x++)
+  {
+    glVertex3f(x, 0, 0);
+  }
+  glEnd();
+  glPopMatrix();
+  glPushMatrix();
+  glBegin(GL_LINE_STRIP);
+  glColor3f(0, 0, 1);
+
+  for (int x = -100; x <= 100; x++)
+  {
+    glVertex3f(0, x, 0);
+  }
+  glEnd();
+  glPopMatrix();
+  glPushMatrix();
+  glBegin(GL_LINE_STRIP);
+  glColor3f(0, 1, 0);
+
+  for (int x = -100; x <= 100; x++)
+  {
+    glVertex3f(0, 0, x);
+  }
+  glEnd();
+  glPopMatrix();
+  glColor3f(1, 1, 1);
+}
+
 int menuoption = 0; //default
 void display()
 {
@@ -263,12 +366,8 @@ void display()
   gluLookAt(cam[0], cam[1], cam[2], 0, 0, 0, 0, 1, 0);
   //printf(" %f|%f|%f\n", cam[0], cam[1], cam[2]);
 
-  switch (menuoption)
-  {
-  case 0: // default dog position
-    traverse(&torso_node);
-    break;
-  }
+  drawAxis();
+  traverse(&torso_node);
 
   glutSwapBuffers();
   glFlush(); /* clear buffers */
@@ -277,6 +376,32 @@ void display()
 void menu(int option)
 {
   menuoption = option;
+  switch (menuoption)
+  {
+  case 0: // default dog position
+    glPushMatrix();
+    glLoadIdentity();
+    glRotatef(45, -1, 0, 0);
+    glGetFloatv(GL_MODELVIEW_MATRIX, torso_node.m);
+    glPopMatrix();
+    break;
+  case 1: // raise front leg
+    glPushMatrix();
+    glLoadIdentity();
+    glTranslatef(torso_height / 2, -torso_height, torso_length - 2);
+    glRotatef(90, -1, 0, 0);
+    glGetFloatv(GL_MODELVIEW_MATRIX, frul_node.m);
+    glPopMatrix();
+
+    glPushMatrix();
+    glLoadIdentity();
+    glRotatef(45, -1, 0, 0);
+
+    glTranslatef(0, -leg_height, 0);
+    glGetFloatv(GL_MODELVIEW_MATRIX, frll_node.m);
+    glPopMatrix();
+    break;
+  }
   glutPostRedisplay();
 }
 
@@ -314,11 +439,11 @@ int main(int argc, char **argv)
   glutSpecialFunc(SpecialKeyHandler);
 
   glutCreateMenu(menu);
-  glutAddMenuEntry("Cubic Interpolation Curve", 0);
-  glutAddMenuEntry("Bezier Curve: 1 part/6th degree", 1);
+  glutAddMenuEntry("Default position", 0);
+  glutAddMenuEntry("Raise and bend front leg", 1);
 
-  glutAddMenuEntry("Bezier Curve: 2 cubic parts", 2);
-  glutAddMenuEntry("Bicubic interpolation surface", 3);
+  glutAddMenuEntry("Up on back legs and bend front legs", 2);
+  glutAddMenuEntry("Bend the neck", 3);
 
   glutAttachMenu(GLUT_RIGHT_BUTTON);
 
