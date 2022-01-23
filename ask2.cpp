@@ -156,19 +156,8 @@ void brt()
   glPopMatrix();
 }
 
-void myinit()
-{
-  //glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-  glMatrixMode(GL_PROJECTION);
-  glEnable(GL_DEPTH_TEST); // to see back of the cube, has to do with 3Dness
-  glClearColor(0.5, 0.5, 0.5, 0);
-  glOrtho(-50.0, 50.0, -50.0, 50.0, 0, 100); // αν ειναι αρνητικά, πάει πίσω από τον παρατηρητή
-
-  glMatrixMode(GL_MODELVIEW); // peirazoume ton xoro kai ta simeia tora, oxi tin kamera
-  gluLookAt(cam[0], cam[1], cam[2], 0, 0, 0, 0, 1, 0);
-  // glulookat explanation: https://stackoverflow.com/questions/5717654/glulookat-explanation/5721110
-
-  // INITIALIZE TREE NODES AND MOVEMENT ANGLES
+void init_nodes()
+{ // INITIALIZE TREE NODES AND MOVEMENT ANGLES
   // TORSO:
   glLoadIdentity();
   //glRotatef(50, 0, 1, 1);
@@ -181,7 +170,6 @@ void myinit()
   glLoadIdentity();
   glTranslatef(0, torso_height / 2 - 1, torso_length);
   glRotatef(30, -1, 0, 0);
-
   glGetFloatv(GL_MODELVIEW_MATRIX, neck_node.m);
   neck_node.f = neck;
   neck_node.sibling = &flul_node;
@@ -302,6 +290,21 @@ void myinit()
   brt_node.child = NULL;
 }
 
+void myinit()
+{
+  //glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+  glMatrixMode(GL_PROJECTION);
+  glEnable(GL_DEPTH_TEST); // to see back of the cube, has to do with 3Dness
+  glClearColor(0.5, 0.5, 0.5, 0);
+  glOrtho(-50.0, 50.0, -50.0, 50.0, 0, 100); // αν ειναι αρνητικά, πάει πίσω από τον παρατηρητή
+
+  glMatrixMode(GL_MODELVIEW); // peirazoume ton xoro kai ta simeia tora, oxi tin kamera
+  gluLookAt(cam[0], cam[1], cam[2], 0, 0, 0, 0, 1, 0);
+  // glulookat explanation: https://stackoverflow.com/questions/5717654/glulookat-explanation/5721110
+
+  init_nodes();
+}
+
 void idleFunc()
 {
 
@@ -373,6 +376,83 @@ void display()
   glFlush(); /* clear buffers */
 }
 
+void case1()
+{
+  glPushMatrix();
+  glLoadIdentity();
+  glTranslatef(-(torso_height / 2), -torso_height, torso_length - 2);
+  glRotatef(90, -1, 0, 0);
+  glGetFloatv(GL_MODELVIEW_MATRIX, frul_node.m);
+  glPopMatrix();
+
+  glPushMatrix();
+  glLoadIdentity();
+  glTranslatef(0, -leg_height, 0);
+  glRotatef(120, 1, 0, 0);
+  glGetFloatv(GL_MODELVIEW_MATRIX, frll_node.m);
+  glPopMatrix();
+}
+void case2()
+{ // rotate torso
+  glPushMatrix();
+  glLoadIdentity();
+  glRotatef(40, -1, 0, 0);
+  glGetFloatv(GL_MODELVIEW_MATRIX, torso_node.m);
+  glPopMatrix();
+  // counter-rotate back legs
+  glPushMatrix();
+  glLoadIdentity();
+  glTranslatef(-(torso_height / 2), -torso_height, 2);
+  glRotatef(40, 1, 0, 0);
+  glGetFloatv(GL_MODELVIEW_MATRIX, blul_node.m);
+  glPopMatrix();
+  // and the other one
+  glPushMatrix();
+  glLoadIdentity();
+  glTranslatef((torso_height / 2), -torso_height, 2);
+  glRotatef(40, 1, 0, 0);
+  glGetFloatv(GL_MODELVIEW_MATRIX, brul_node.m);
+  glPopMatrix();
+  // rotate and bend front legs
+  glPushMatrix();
+  glLoadIdentity();
+  glTranslatef(-(torso_height / 2), -torso_height, torso_length - 2);
+  glRotatef(60, -1, 0, 0);
+  glGetFloatv(GL_MODELVIEW_MATRIX, flul_node.m);
+  glPopMatrix();
+  // and lower leg bend
+  glPushMatrix();
+  glLoadIdentity();
+  glTranslatef(0, -leg_height, 0);
+  glRotatef(120, 1, 0, 0);
+  glGetFloatv(GL_MODELVIEW_MATRIX, flll_node.m);
+  glPopMatrix();
+  // and other leg
+  glPushMatrix();
+  glLoadIdentity();
+  glTranslatef((torso_height / 2), -torso_height, torso_length - 2);
+  glRotatef(60, -1, 0, 0);
+  glGetFloatv(GL_MODELVIEW_MATRIX, frul_node.m);
+  glPopMatrix();
+  // and other lower leg bend
+  glPushMatrix();
+  glLoadIdentity();
+  glTranslatef(0, -leg_height, 0);
+  glRotatef(120, 1, 0, 0);
+  glGetFloatv(GL_MODELVIEW_MATRIX, frll_node.m);
+  glPopMatrix();
+}
+void case3()
+{
+  // rotate neck
+  glPushMatrix();
+  glLoadIdentity();
+  glTranslatef(0, torso_height / 2 - 1, torso_length);
+  glRotatef(45, 1, 0, 0);
+  glGetFloatv(GL_MODELVIEW_MATRIX, neck_node.m);
+  glPopMatrix();
+}
+
 void menu(int option)
 {
   menuoption = option;
@@ -381,25 +461,17 @@ void menu(int option)
   case 0: // default dog position
     glPushMatrix();
     glLoadIdentity();
-    glRotatef(45, -1, 0, 0);
-    glGetFloatv(GL_MODELVIEW_MATRIX, torso_node.m);
+    init_nodes();
     glPopMatrix();
     break;
   case 1: // raise front leg
-    glPushMatrix();
-    glLoadIdentity();
-    glTranslatef(torso_height / 2, -torso_height, torso_length - 2);
-    glRotatef(90, -1, 0, 0);
-    glGetFloatv(GL_MODELVIEW_MATRIX, frul_node.m);
-    glPopMatrix();
-
-    glPushMatrix();
-    glLoadIdentity();
-    glRotatef(45, -1, 0, 0);
-
-    glTranslatef(0, -leg_height, 0);
-    glGetFloatv(GL_MODELVIEW_MATRIX, frll_node.m);
-    glPopMatrix();
+    case1();
+    break;
+  case 2:
+    case2();
+    break;
+  case 3: // bend the neck
+    case3();
     break;
   }
   glutPostRedisplay();
