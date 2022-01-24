@@ -7,8 +7,12 @@
 #include <math.h>
 #include <cmath>
 #include <list>
+#include <cstring>
 #define M_PI 3.14159265358979323846
 using namespace std;
+
+int menuoption = 0; //default
+float angle = 0;
 
 GLfloat cam[] = {0, 20, 70};
 GLfloat camAngle = M_PI / 180 * 270;
@@ -24,7 +28,8 @@ treenode torso_node, head_node, neck_node, flul_node, frul_node, blul_node, brul
 // legs: front/back, right/left, upper/lower, leg
 // toes: front/back, right/left, toe
 
-GLfloat theta[11] = {0};
+int theta[5] = {0};
+int theta_ref[] = {90, 120, 40, 60, 45};
 
 int torso_length = 15;
 int torso_height = 5;
@@ -305,12 +310,6 @@ void myinit()
   init_nodes();
 }
 
-void idleFunc()
-{
-
-  //glutPostRedisplay();
-}
-
 void traverse(treenode *root)
 {
   if (root == NULL)
@@ -359,7 +358,6 @@ void drawAxis()
   glColor3f(1, 1, 1);
 }
 
-int menuoption = 0; //default
 void display()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -380,15 +378,16 @@ void case1()
 {
   glPushMatrix();
   glLoadIdentity();
-  glTranslatef(-(torso_height / 2), -torso_height, torso_length - 2);
-  glRotatef(90, -1, 0, 0);
+  glTranslatef((torso_height / 2), -torso_height, torso_length - 2);
+
+  glRotatef(theta[0], -1, 0, 0);
   glGetFloatv(GL_MODELVIEW_MATRIX, frul_node.m);
   glPopMatrix();
 
   glPushMatrix();
   glLoadIdentity();
   glTranslatef(0, -leg_height, 0);
-  glRotatef(120, 1, 0, 0);
+  glRotatef(theta[1], 1, 0, 0);
   glGetFloatv(GL_MODELVIEW_MATRIX, frll_node.m);
   glPopMatrix();
 }
@@ -396,49 +395,49 @@ void case2()
 { // rotate torso
   glPushMatrix();
   glLoadIdentity();
-  glRotatef(40, -1, 0, 0);
+  glRotatef(theta[2], -1, 0, 0);
   glGetFloatv(GL_MODELVIEW_MATRIX, torso_node.m);
   glPopMatrix();
   // counter-rotate back legs
   glPushMatrix();
   glLoadIdentity();
   glTranslatef(-(torso_height / 2), -torso_height, 2);
-  glRotatef(40, 1, 0, 0);
+  glRotatef(theta[2], 1, 0, 0);
   glGetFloatv(GL_MODELVIEW_MATRIX, blul_node.m);
   glPopMatrix();
   // and the other one
   glPushMatrix();
   glLoadIdentity();
   glTranslatef((torso_height / 2), -torso_height, 2);
-  glRotatef(40, 1, 0, 0);
+  glRotatef(theta[2], 1, 0, 0);
   glGetFloatv(GL_MODELVIEW_MATRIX, brul_node.m);
   glPopMatrix();
   // rotate and bend front legs
   glPushMatrix();
   glLoadIdentity();
   glTranslatef(-(torso_height / 2), -torso_height, torso_length - 2);
-  glRotatef(60, -1, 0, 0);
+  glRotatef(theta[3], -1, 0, 0);
   glGetFloatv(GL_MODELVIEW_MATRIX, flul_node.m);
   glPopMatrix();
   // and lower leg bend
   glPushMatrix();
   glLoadIdentity();
   glTranslatef(0, -leg_height, 0);
-  glRotatef(120, 1, 0, 0);
+  glRotatef(theta[1], 1, 0, 0);
   glGetFloatv(GL_MODELVIEW_MATRIX, flll_node.m);
   glPopMatrix();
   // and other leg
   glPushMatrix();
   glLoadIdentity();
   glTranslatef((torso_height / 2), -torso_height, torso_length - 2);
-  glRotatef(60, -1, 0, 0);
+  glRotatef(theta[3], -1, 0, 0);
   glGetFloatv(GL_MODELVIEW_MATRIX, frul_node.m);
   glPopMatrix();
   // and other lower leg bend
   glPushMatrix();
   glLoadIdentity();
   glTranslatef(0, -leg_height, 0);
-  glRotatef(120, 1, 0, 0);
+  glRotatef(theta[1], 1, 0, 0);
   glGetFloatv(GL_MODELVIEW_MATRIX, frll_node.m);
   glPopMatrix();
 }
@@ -448,33 +447,49 @@ void case3()
   glPushMatrix();
   glLoadIdentity();
   glTranslatef(0, torso_height / 2 - 1, torso_length);
-  glRotatef(45, 1, 0, 0);
+  glRotatef(theta[4], 1, 0, 0);
   glGetFloatv(GL_MODELVIEW_MATRIX, neck_node.m);
   glPopMatrix();
+}
+
+void idleFunc()
+{
+  // increase angle for animation
+  angle += 0.1;
+  for (int i = 0; i < 5; i++)
+  {
+    theta[i] += angle;
+    if (theta[i] > theta_ref[i])
+      theta[i] = theta_ref[i];
+  }
+  switch (menuoption)
+  {
+  case 0:
+    init_nodes();
+    break;
+  case 1:
+    init_nodes();
+    case1();
+    break;
+  case 2:
+    init_nodes();
+    case2();
+    break;
+  case 3:
+    init_nodes();
+    case3();
+    break;
+  default:
+    break;
+  }
+  glutPostRedisplay();
 }
 
 void menu(int option)
 {
   menuoption = option;
-  switch (menuoption)
-  {
-  case 0: // default dog position
-    glPushMatrix();
-    glLoadIdentity();
-    init_nodes();
-    glPopMatrix();
-    break;
-  case 1: // raise front leg
-    case1();
-    break;
-  case 2:
-    case2();
-    break;
-  case 3: // bend the neck
-    case3();
-    break;
-  }
-  glutPostRedisplay();
+  angle = 0;
+  memset(theta, 0, sizeof(theta));
 }
 
 void SpecialKeyHandler(int key, int x, int y)
