@@ -22,59 +22,72 @@ typedef struct particle
     GLfloat mass;
 } particle;
 
-const int MAX_NUM_PARTICLES = 20;
+const int MAX_NUM_PARTICLES = 50;
 particle particles[MAX_NUM_PARTICLES];
-// in all axis: 20/-20
-GLfloat bounding_box = 20; 
+// in all axis: 50/-50
+GLfloat bounding_box = 50;
 
-int num_particles = 1;
+float dt = 0.1;        // time unit
+float timecounter = 0; // time counter
+
+int num_particles = 0;
+float speed = 1;
 void test()
 {
-    particle prt1 = {{0, 1, 0}, {1, 0, 0}, 2};
+    particle prt1;
     prt1.mass = 1;
-    //cout << "mass " << prt1.mass;
+    for (int j = 0; j < 3; j++)
+    {
+        prt1.position[j] = bounding_box * ((float)rand() / RAND_MAX) - bounding_box * 0.5;
+        prt1.velocity[j] = speed * ((float)rand() / RAND_MAX);
+    }
     particles[0] = prt1;
 }
 
-// for (int i = 0; i < num_particles; i++)
-// {
-//     particles[i].mass = 1.0;
-//     //particles[i].color = i % NUM_COLORS;
-//     for (int j = 0; j < 3; j++)
-//     {
-//         particles[i].position[j] = 2.0 * ((float)rand() / RAND_MAX) - 1.0;
-//         particles[i].velocity[j] = speed * 2.0 * ((float)rand() / RAND_MAX) - 1.0;
-//     }
-//     particles[i].position[3] = 1.0;
-//     particles[i].velocity[3] = 0.0;
-// }
+void generateParticle()
+{
+    // every x time units generate a particle
+    // multiply * 10 giati einai dekadiko kai i (int) kanei floor, opote kanei generate polla particles mazi
+    int time_modulo = (int)(timecounter * 10) % 30; // every 30 "seconds"
+    if (time_modulo == 0)
+    {
+        // if array not full
+        if (num_particles < MAX_NUM_PARTICLES)
+        {
+            particle prt;
+            prt.mass = 1;
+            for (int j = 0; j < 3; j++)
+            {
+                prt.position[j] = bounding_box * ((float)rand() / RAND_MAX) - bounding_box * 0.5;
+                prt.velocity[j] = speed * ((float)rand() / RAND_MAX);
+            }
+            particles[++num_particles] = prt;
+        }
+    }
+}
 
-float coef = 1; /* coefficient of restitution */
+float coef = 1; // elastiki anapidisi
 void collision(int n)
 {
     int i;
     for (i = 0; i < 3; i++)
     {
-        if (particles[n].position[i] >= 1.0)
+        if (particles[n].position[i] >= bounding_box / 2)
         {
             particles[n].velocity[i] = -coef * particles[n].velocity[i];
-            particles[n].position[i] = 1.0 - coef *
-                                                 (particles[n].position[i] - 1.0);
+            particles[n].position[i] = bounding_box / 2 - coef * (particles[n].position[i] - bounding_box / 2);
         }
-        if (particles[n].position[i] <= -1.0)
+        if (particles[n].position[i] <= -bounding_box / 2)
         {
             particles[n].velocity[i] = -coef * particles[n].velocity[i];
-            particles[n].position[i] = -1.0 - coef *
-                                                  (particles[n].position[i] + 1.0);
+            particles[n].position[i] = -bounding_box / 2 - coef * (particles[n].position[i] + bounding_box / 2);
         }
     }
 }
 
-//bool gravity = TRUE;
+// theloume gravity mono ston y axis. (j=1)
 float forces(int i, int j)
 {
-    // if (!gravity)
-    //     return (0.0);
     if (j == 1)
         return (-1.0);
     else
@@ -149,36 +162,34 @@ void display()
     //printf(" %f|%f|%f\n", cam[0], cam[1], cam[2]);
 
     drawAxis();
-    test();
     drawParticles();
 
     glutSwapBuffers();
     glFlush(); /* clear buffers */
 }
 
-float dt = 0.1;        // time unit
-float timecounter = 0; // time counter
 void idleFunc()
 {
-    int i, j;
-    //float dt;
-    //present_time = glutGet(GLUT_ELAPSED_TIME); /* in milliseconds */
-    //dt = 0.001 * (present_time - last_time);   /* in seconds */
-    for (i = 0; i < num_particles; i++)
+    for (int i = 0; i < num_particles; i++)
     {
-        for (j = 0; j < 3; j++)
+        for (int j = 0; j < 3; j++)
         {
+            // State derivative: Y': (x, v)' -> (v, f/m)
+            // Euler's method nomizo
+            // Y(t+h) = Y(t) + h*Y'(t) + error
+            // position += h * x' (=v)
+            // velocity += h * v' (=f/m)
             particles[i].position[j] += dt * particles[i].velocity[j];
             particles[i].velocity[j] += dt * forces(i, j) / particles[i].mass;
         }
         collision(i);
     }
-    //last_time = present_time;
     timecounter += dt;
+    cout << timecounter << endl;
 
     // generate a new particle with probability x
     // if array not full
-    // generateParticle()
+    generateParticle();
 
     glutPostRedisplay();
 }
@@ -213,7 +224,7 @@ int main(int argc, char **argv)
     glutCreateWindow("Askisi 2.2");
     myinit();
     glutDisplayFunc(display);
-    //glutIdleFunc(idleFunc);
+    glutIdleFunc(idleFunc);
     glutSpecialFunc(SpecialKeyHandler);
 
     glutAttachMenu(GLUT_RIGHT_BUTTON);
