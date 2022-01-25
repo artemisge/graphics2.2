@@ -61,7 +61,7 @@ void generateParticle()
                 prt.position[j] = bounding_box * ((float)rand() / RAND_MAX) - bounding_box * 0.5;
                 prt.velocity[j] = speed * ((float)rand() / RAND_MAX);
             }
-            particles[++num_particles] = prt;
+            particles[num_particles++] = prt;
         }
     }
 }
@@ -145,7 +145,8 @@ void drawParticles()
 {
     for (int i = 0; i < num_particles; i++)
     {
-        glPointSize(20);
+        glColor3f(1, 1, 0);
+        glPointSize(10);
         glBegin(GL_POINTS);
         glVertex3fv(particles[i].position);
         glEnd();
